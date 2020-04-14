@@ -1,0 +1,72 @@
+
+
+[31m2020/04/13 16:51:07 [Recovery] 2020/04/13 - 16:51:07 panic recovered:
+GET /test HTTP/1.1
+Host: 127.0.0.1:8080
+Accept: */*
+User-Agent: curl/7.64.1
+
+
+test panic
+/usr/local/go/src/runtime/panic.go:491 (0x102b422)
+	gopanic: reflectcall(nil, unsafe.Pointer(d.fn), deferArgs(d), uint32(d.siz), uint32(d.siz))
+/Users/zonst/go/src/github.com/nizonglong/gin_test_project/middleware_gin/main.go:20 (0x148fb30)
+	main.func1: panic("test panic")
+/Users/zonst/go/src/github.com/gin-gonic/gin/context.go:124 (0x14793c9)
+	(*Context).Next: c.handlers[c.index](c)
+/Users/zonst/go/src/github.com/gin-gonic/gin/recovery.go:83 (0x148d799)
+	RecoveryWithWriter.func1: c.Next()
+/Users/zonst/go/src/github.com/gin-gonic/gin/context.go:124 (0x14793c9)
+	(*Context).Next: c.handlers[c.index](c)
+/Users/zonst/go/src/github.com/gin-gonic/gin/logger.go:240 (0x148ca20)
+	LoggerWithConfig.func1: c.Next()
+/Users/zonst/go/src/github.com/gin-gonic/gin/context.go:124 (0x14793c9)
+	(*Context).Next: c.handlers[c.index](c)
+/Users/zonst/go/src/github.com/gin-gonic/gin/gin.go:389 (0x148349f)
+	(*Engine).handleHTTPRequest: c.Next()
+/Users/zonst/go/src/github.com/gin-gonic/gin/gin.go:351 (0x1482c1a)
+	(*Engine).ServeHTTP: engine.handleHTTPRequest(c)
+/usr/local/go/src/net/http/server.go:2619 (0x1267463)
+	serverHandler.ServeHTTP: handler.ServeHTTP(rw, req)
+/usr/local/go/src/net/http/server.go:1801 (0x12635ac)
+	(*conn).serve: serverHandler{c.server}.ServeHTTP(w, w.req)
+/usr/local/go/src/runtime/asm_amd64.s:2337 (0x1058e60)
+	goexit: BYTE	$0x90	// NOP
+[0m
+[GIN] 2020/04/13 - 16:51:07 | 500 |    1.370839ms |       127.0.0.1 | GET      /test
+
+
+[31m2020/04/13 17:02:19 [Recovery] 2020/04/13 - 17:02:19 panic recovered:
+GET /test HTTP/1.1
+Host: 127.0.0.1:8080
+Accept: */*
+User-Agent: curl/7.64.1
+
+
+test panic
+/usr/local/go/src/runtime/panic.go:491 (0x102b422)
+	gopanic: reflectcall(nil, unsafe.Pointer(d.fn), deferArgs(d), uint32(d.siz), uint32(d.siz))
+/Users/zonst/go/src/github.com/nizonglong/gin_test_project/middleware_gin/main.go:20 (0x148fb30)
+	main.func1: panic("test panic")
+/Users/zonst/go/src/github.com/gin-gonic/gin/context.go:124 (0x14793c9)
+	(*Context).Next: c.handlers[c.index](c)
+/Users/zonst/go/src/github.com/gin-gonic/gin/recovery.go:83 (0x148d799)
+	RecoveryWithWriter.func1: c.Next()
+/Users/zonst/go/src/github.com/gin-gonic/gin/context.go:124 (0x14793c9)
+	(*Context).Next: c.handlers[c.index](c)
+/Users/zonst/go/src/github.com/gin-gonic/gin/logger.go:240 (0x148ca20)
+	LoggerWithConfig.func1: c.Next()
+/Users/zonst/go/src/github.com/gin-gonic/gin/context.go:124 (0x14793c9)
+	(*Context).Next: c.handlers[c.index](c)
+/Users/zonst/go/src/github.com/gin-gonic/gin/gin.go:389 (0x148349f)
+	(*Engine).handleHTTPRequest: c.Next()
+/Users/zonst/go/src/github.com/gin-gonic/gin/gin.go:351 (0x1482c1a)
+	(*Engine).ServeHTTP: engine.handleHTTPRequest(c)
+/usr/local/go/src/net/http/server.go:2619 (0x1267463)
+	serverHandler.ServeHTTP: handler.ServeHTTP(rw, req)
+/usr/local/go/src/net/http/server.go:1801 (0x12635ac)
+	(*conn).serve: serverHandler{c.server}.ServeHTTP(w, w.req)
+/usr/local/go/src/runtime/asm_amd64.s:2337 (0x1058e60)
+	goexit: BYTE	$0x90	// NOP
+[0m
+[GIN] 2020/04/13 - 17:02:19 | 500 |    1.214434ms |       127.0.0.1 | GET      /test
