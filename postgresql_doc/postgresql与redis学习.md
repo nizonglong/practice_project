@@ -94,6 +94,12 @@ docker run -p 80:80 \
 docker run --name pgdmin4-study -p 80:80 -e "PGADMIN_DEFAULT_EMAIL=nizonglong@163.com" -e "PGADMIN_DEFAULT_PASSWORD=123456" -v /Users/zonst/docker_data/study_pgadmin4:/var/lib/pgadmin -d dpage/pgadmin4
 ```
 
+### docker install mysql
+
+```
+docker run -itd --name mysql-study -p 3306:3306 -e MYSQL_ROOT_PASSWORD=123456 -v /Users/zonst/docker_data/study_mysql:/var/lib/mysql mysql
+```
+
 
 
 ## postgresql基础命令
@@ -323,7 +329,122 @@ PostgreSQL提供了多种索引类型： B-tree、Hash、GiST、SP-GiST 、GIN �
 
 11. 并发控制
 
+### 备份
 
+> 1、写WAL(XLOG日志)
+>
+> - archive_mode
+> - 写归档日志
+>
+> 2、检查点
+>
+> - 检查点标记日志
+> - 检查点写数据
+>
+> 3、日志自动转存
+>
+> - 切换日志
+>
+> 4、数据转存
+>
+> - cp转存
+
+#### 热备
+
+1. 首先创建psql_arch和psql_data目录
+2. 找到`postgresql.conf`先备份一份，然后打开编辑，替换这部分
+
+```
+# - Archiving -
+
+archive_mode = on		# enables archiving; off, on, or always
+				# (change requires restart)
+#archive_command = ''		# command to use to archive a logfile segment
+				# placeholders: %p = path of file to archive
+				#               %f = file name only
+				# e.g. 'test ! -f /mnt/server/archivedir/%f && cp %p /mnt/server/archivedir/%f'
+archive_command = 'DATE=`date +%Y%m%d`;DIR="/Users/zonst/docker_data/psql_arch/$DATE";(test -d $DIR||mkdir -p $DIR) && cp /Users/zonst/docker_data/psql_data/%p $DIR/%f'
+#archive_timeout = 0		# force a logfile segment switch after this
+				# number of seconds; 0 disables
+```
+
+然后再修改
+
+```
+wal_level = logical			# minimal, replica, or logical
+					# (change requires restart)
+```
+
+3. 重启postgresql，然后执行`checkpoint;`，接着执行`select pg_switch_xlog();`
+
+### 热备2
+
+1. 进入postgresql命令行，按顺序执行以下命令
+
+```
+create database test;
+\c test;
+create table test1(id int);
+insert into test1 values(1);
+commit;
+select * from test1
+```
+
+2. 进行配置操作
+
+```
+alter system  set wal_level='replica';
+alter system  set archive_mode='on';
+alter system  set archive_command='cp %p /psql_arch/%f';
+show archive_command;
+show archive_mode;
+```
+
+3. 重启使得配置生效
+4. 执行命令查看archive mode
+
+`show archive_mode;`
+
+`show wal_level;`
+
+正常显示应该是这样
+
+![](https://cdn.jsdelivr.net/gh/nizonglong/oss@master/2020-04-16%2010:47:34-uPic-Snipaste_2020-04-16_10-47-18.png)
+
+### docker postgresql 备份
+
+#### 全备份
+
+```
+docker exec psql-study pg_dumpall -U postgres > backup-test.sql # psql-study 是数据库的 docker 名称
+```
+
+这样就在主目录生成一个`backup-test.sql`的文件，导出的是全部的数据库数据
+
+#### 表备份
+
+```
+docker exec psql-study pg_dump -U postgres study -t iuser -t irole > backup-table.sql
+```
+
+上面执行具体到表的备份，备份了study数据库的iuser，irole表成为backup-table.sql
+
+#### 备份压缩(处理大型数据库)
+
+- 备份 `pg_dump dbname | gzip > filename.gz`
+- 恢复 `gunzip -c filename.gz | psql dbname`
+
+在docker下操作与上方类似，加上docker 命令前缀即可
+
+#### 恢复
+
+```
+# 复制备份文件到docker下的/tmp目录
+docker cp backup-test.sql psql-study:/tmp
+
+# 执行恢复
+docker exec psql-study psql -U postgres -f /tmp/backup-test.sql postgres
+```
 
 
 
@@ -626,3 +747,6 @@ func main() {
 1. 由于系统环境为go1.9因此一些最新的功能无法支持导致编译出问题，会报错说类似`cannot find package "github.com/go-redis/redis/v7/internal`
 
 解决：在go-redis开启终端，使用`git log`查看日志，然后使用较早版本的代码就可以，使用`git checkout version-number`切换版本即可，此处我使用的是`git checkout 0fdd200bc73d0033e6742edd51979bc81cda2d52`
+
+### 
+

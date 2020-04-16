@@ -15,7 +15,7 @@ type IUser struct {
 }
 
 //DSN
-const DSN = "host=localhost port=54321 user=postgres dbname=study sslmode=disable password=123456"
+const DSN = "host=172.17.0.3 port=5432 user=postgres dbname=study password=123456 sslmode=disable"
 
 //指定驱动
 const DRIVER = "postgres"

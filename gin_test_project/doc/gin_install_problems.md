@@ -14,4 +14,16 @@ https://github.com/go-playground/validator/issues/546
 
 
 
-### 
+### cannot find package "golang.org/x/sys/unix" in any of:
+
+原因：由于限制问题，国内使用 go get 安装 golang 官方包可能会失败
+
+解决：
+
+```
+cd ~/go/src
+mkdir -p golang.org/x
+cd golang.org/x
+git clone https://github.com/golang/sys.git
+```
+
