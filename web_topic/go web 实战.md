@@ -24,6 +24,63 @@
 /v1/users?limit=10    // 只显示10条
 ```
 
+### 如何做验证Validate
+
+为什么要验证？因为需要对参数有所限制，传递过来的参数可能不符合规范写入数据库会有问题，因此需要进行参数验证。
+
+1. 首先，需要在结构体定义里面对参数进行规则配置
+
+```go
+type Topic struct {
+	TopicID         int    `json:"id"`
+	TopicTitle      string `json:"title" binding:"min=4,max=20"`
+	TopicShortTitle string `json:"stitle" binding:"required"`
+	UserIP          string `json:"ip" binding:"ipv4"`
+	TopicScore      int    `json:"score" binding:"gt=5"`
+	TopicUrl        string `json:"url" binding:"omitempty,topicurl"`
+}
+```
+
+`json:"id"`这个是意思是json对应的接口，TopicID这个字段输出json的时候是以id输出，当然接收json的时候也是接收id然后自动对应到TopicID
+
+`json:"title" binding:"min=4,max=20"`这个是作为title的json形式，然后binding是绑定验证，在文档[go 参数验证](https://godoc.org/gopkg.in/go-playground/validator.v8)可以查询使用规则。这里的min=4,max=20是指限制字符的长度在4-20以内。
+
+`json:"url" binding:"omitempty,topicurl"`这里和上面有一些特殊的地方，topicurl是一个自定义验证函数，是我们自己定义的规则。
+
+2. 自定义验证规则
+
+```go
+func TopicUrl(v *validator.Validate, topStruct reflect.Value, currentStructOrField reflect.Value, field reflect.Value, fieldType reflect.Type, fieldKind reflect.Kind, param string) bool {
+
+	_, ok := topStruct.Interface().(*Topic)
+	_, oks := topStruct.Interface().(*Topics)
+	if ok || oks {
+		// fmt.Println(field.String())
+		if matched, _ := regexp.MatchString(`^\w{4,10}$`, field.String()); matched {
+			return true
+		}
+		// 正则里， ^开头，$结尾
+	}
+
+	return false
+}
+```
+
+在上方的文档里是有验证规则的，函数也在文档里。
+
+3. 注册自定义的验证函数
+
+```go
+	// 注册验证器
+	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
+		_ = v.RegisterValidation("topicurl", TopicUrl)
+		// 验证长度
+		_ = v.RegisterValidation("topics", TopicsValidate)
+	}
+```
+
+此处对应第1点的topics，在这里命名验证规则的名称为`topicurl`，然后对应的验证函数为`TopicUrl`，这样就实现了自定义函数。
+
 ### 值得注意的地方
 
 #### 1. 路由组和{}
@@ -142,3 +199,10 @@ type TopicQuery struct {
 
 ![](https://cdn.jsdelivr.net/gh/nizonglong/oss@master/2020-04-16%2015:33:18-uPic-Snipaste_2020-04-16_15-30-27.png)
 
+### 使用postgresql 但是频繁空指针异常
+
+goland不会自动导包，需要手动导入
+
+`_ "github.com/jinzhu/gorm/dialects/postgres"`
+
+然后再运行即可正常使用	

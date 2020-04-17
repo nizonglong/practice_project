@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	db, err := gorm.Open("postgres", "host=172.17.0.3 port=5432 user=postgres dbname=study password=123456")
+	db, err := gorm.Open("postgres", "host=127.0.0.1 port=5432 user=postgres dbname=study password=nizonglong sslmode=disable")
 	defer db.Close()
 
 	if err != nil {
