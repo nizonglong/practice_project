@@ -10,7 +10,9 @@ import (
 	"log"
 	"net/http"
 	. "practice_project/web_topic/src"
+	. "practice_project/web_topic/src/cache"
 	. "practice_project/web_topic/src/dao"
+	. "practice_project/web_topic/src/model"
 	"time"
 )
 
@@ -41,7 +43,7 @@ func main() {
 	{
 		v1.GET("", GetTopicList)
 
-		v1.GET("/:topic_id", GetTopicDetail)
+		v1.GET("/:topic_id", CacheDecorator(GetTopicDetail, "topic_id", "topic_%s", TopicClass{}))
 
 		v1.Use(MustLogin())
 		{

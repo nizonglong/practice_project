@@ -1,4 +1,4 @@
-package src
+package cache
 
 import (
 	"github.com/jinzhu/gorm"
