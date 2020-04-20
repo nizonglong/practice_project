@@ -5,7 +5,7 @@ import (
 )
 
 type Topics struct {
-	TopicID         int       `json:"id"`
+	TopicID         int       `json:"id" gorm:"primary_key"`
 	TopicTitle      string    `json:"title" binding:"min=4,max=20"`
 	TopicShortTitle string    `json:"stitle" binding:"required"`
 	UserIP          string    `json:"ip" binding:"ipv4"`

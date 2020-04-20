@@ -1,11 +1,10 @@
 package dao
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"net/http"
+	. "practice_project/web_topic/src"
 	. "practice_project/web_topic/src/model"
 )
 
@@ -21,18 +20,11 @@ func MustLogin() gin.HandlerFunc {
 }
 
 func GetTopicDetail(c *gin.Context) {
-	db, err := gorm.Open("postgres", "host=localhost port=5432 user=postgres dbname=test password=nizonglong sslmode=disable")
-
-	if db == nil {
-		fmt.Println("conn err=", err.Error())
-	}
-	db.LogMode(true)
 	tid := c.Param("topic_id")
 	topics := Topics{}
-	db.Find(&topics, tid)
+	DBHelper.Find(&topics, tid)
+	//DBHelper.Find(&topics, "topic_id=1")
 	c.JSON(http.StatusOK, topics)
-
-	defer db.Close()
 }
 
 func GetTopicList(c *gin.Context) {

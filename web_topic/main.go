@@ -1,13 +1,28 @@
 package main
 
 import (
+	"context"
+	"github.com/garyburd/redigo/redis"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"gopkg.in/go-playground/validator.v8"
+	"log"
+	"net/http"
 	. "practice_project/web_topic/src"
 	. "practice_project/web_topic/src/dao"
+	"time"
 )
+
+func main2() {
+	conn := RedisDefaultPool.Get()
+	ret, err := redis.String(conn.Do("get", "name"))
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	log.Println(ret)
+}
 
 func main() {
 	router := gin.Default()
@@ -50,6 +65,31 @@ func main() {
 
 	}
 
-	router.Run(":8080")
+	//router.Run()
 
+	server := &http.Server{
+		Addr:    ":8080",
+		Handler: router,
+	}
+
+	go (func() { // 启动web服务
+		err := server.ListenAndServe()
+		if err != nil {
+			log.Fatal("服务器启动失败: ", err)
+		}
+	})()
+
+	go (func() {
+		InitDB()
+	})()
+
+	ServerNotify()
+	// 这里还可以做一些 释放或者善后工作，此处略去
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	err := server.Shutdown(ctx)
+	if err != nil {
+		log.Fatal("服务器关闭")
+	}
+	log.Println("服务器优雅的退出")
 }

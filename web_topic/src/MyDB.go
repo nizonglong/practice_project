@@ -1,17 +1,24 @@
 package src
 
 import (
-	"fmt"
 	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
+	"time"
 )
 
-var DB *gorm.DB
+var DBHelper *gorm.DB
 var err error
 
-func init() {
-	DB, err = gorm.Open("postgres", "host=localhost port=5432 user=postgres dbname=test password=nizonglong sslmode=disable")
+func InitDB() {
+	DBHelper, err = gorm.Open("postgres", "host=localhost port=5432 user=postgres dbname=test password=nizonglong sslmode=disable")
 	if err != nil {
-		fmt.Println(err)
-		DB.Close()
+		//fmt.Println(err)
+		//log.Fatal("DB初始化错误：", err)
+		ShutDownServer(err)
+		return
 	}
+	DBHelper.LogMode(true)
+	DBHelper.DB().SetMaxIdleConns(10)
+	DBHelper.DB().SetMaxOpenConns(100)
+	DBHelper.DB().SetConnMaxLifetime(time.Hour)
 }
