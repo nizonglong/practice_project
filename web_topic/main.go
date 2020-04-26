@@ -51,7 +51,6 @@ func main() {
 
 			v1.DELETE("/:topic_id", DeleteTopic)
 		}
-
 	}
 
 	/**

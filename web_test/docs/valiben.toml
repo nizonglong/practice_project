@@ -1,0 +1,16 @@
+listen = ":9999"
+
+user_api = "localhost:8081"
+
+[dbservers]
+    [dbservers.testdb]
+        host = "127.0.0.1"
+        port = 5432
+        dbname = "test_02"
+        user = "postgres"
+        password = "nizonglong"
+
+[redisservers]
+    [redisservers.usercache]
+        addr = "127.0.0.1:6379"
+        db = 0

@@ -15,4 +15,12 @@ func main() {
 	p = &d
 	fmt.Printf("%p, %v\n", p, p.a)
 
+	var num int = 3
+	var point = &num
+	fmt.Println("point =", point)
+	fmt.Println("&point =", &point)
+	fmt.Println("*point =", *point)
+
+	fmt.Println("*point++ =", point)
+
 }
